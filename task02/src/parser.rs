@@ -1,5 +1,5 @@
 type ID = u32;
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Game {
     pub id: u32,
     pub sets: Vec<Set>,
@@ -11,7 +11,7 @@ impl Game {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Set {
     pub red: u32,
     pub green: u32,
@@ -34,6 +34,15 @@ impl Set {
             _ => panic!("unexpected color token! {color}"),
         }
     }
+
+    /// Creates a new Set that contains the maximal values of each color quantity.
+    pub fn eat_max(&self, next: &Set) -> Self {
+        Self {
+            red: self.red.max(next.red),
+            green: self.green.max(next.green),
+            blue: self.blue.max(next.blue),
+        }
+    }
 }
 
 pub fn parse_input(input: &str) -> Vec<Game> {
@@ -48,6 +57,7 @@ const GAME_STR_LEN: usize = "Game".len();
 /// [NUMBER COLOR_NAME COMMA]
 /// Sets are separated from each other by semicolons. The last set does not end with a semicolon.
 fn parse_line(line: &str) -> Game {
+    let line = line.trim(); // <- to accommodate for bad raw string format during testing
     let (id, colon_pos) = get_id(line);
 
     let all_sets_raw = line[colon_pos + 1..].trim();
